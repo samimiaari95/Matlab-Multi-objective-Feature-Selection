@@ -31,13 +31,17 @@
 %     along with MATLAB_IterativeInputSelection.  
 %     If not, see <http://www.gnu.org/licenses/>.
  
+%
+%     Environmental Intelligence Lab version
+%     Matteo Sangiorgio, email: matteo.sangiorgio@polimi.it
+%
 
 clc; clear;
 
 %% include paths
-addpath('..\..\Work\Code\toolboxes\mi');            % Peng's mutual information
-addpath('..\toolboxes\nsga2_MATLAB_alternative');   % LIN's NPGM (for NSGA-II)
-addpath('..\toolboxes\pareto_front');               % Yi Cao's paretofront toolbox
+addpath('mi');                          % Peng's mutual information
+addpath('nsga2_MATLAB_alternative');    % LIN's NPGM (for NSGA-II)
+addpath('pareto_front');                % Yi Cao's paretofront toolbox
 
 
 

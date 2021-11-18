@@ -36,8 +36,14 @@ function [data,varNames,varTypes] = readFile(filePath)
 %     If not, see <http://www.gnu.org/licenses/>.
 %
 
-% load file using xlsread
-[temp_a,temp_b] = xlsread(filePath);
+%
+%     Environmental Intelligence Lab version
+%     Matteo Sangiorgio, email: matteo.sangiorgio@polimi.it
+%
+
+% load file using readtable
+temp = readtable(filePath, 'VariableNamingRule', 'preserve');
+temp_a = temp.Variables;
 
 % extract attribute and variable types
 varTypes = temp_a(1,:);
@@ -46,4 +52,4 @@ varTypes = temp_a(1,:);
 data  = temp_a(2:end,:);
 
 % get names
-varNames = temp_b(1,:);
+varNames = temp.Properties.VariableNames;

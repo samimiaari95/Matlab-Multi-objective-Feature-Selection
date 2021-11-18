@@ -30,13 +30,18 @@
 %     You should have received a copy of the GNU General Public License
 %     along with MATLAB_IterativeInputSelection.  
 %     If not, see <http://www.gnu.org/licenses/>.
- 
+
+%
+%     Environmental Intelligence Lab version
+%     Matteo Sangiorgio, email: matteo.sangiorgio@polimi.it
+%
+
 clc; clear;
 
 %% specify include paths
-addpath('..\..\Work\Code\toolboxes\mi');            % Peng's mutual information
-addpath('..\toolboxes\borg-matlab\');               % Borg
-addpath('..\toolboxes\pareto_front');               % paretofront toolbox
+addpath('mi');            % Peng's mutual information
+addpath('borg-matlab');   % Borg
+addpath('paretofront');   % paretofront toolbox
 
 
 

@@ -47,6 +47,11 @@ function [trYhat, valYhat,W1,W2,bias] =...
 %     If not, see <http://www.gnu.org/licenses/>.
 %
 
+%
+%     Environmental Intelligence Lab version
+%     Matteo Sangiorgio, email: matteo.sangiorgio@polimi.it
+%
+
 % get number of features and number of patterns for training and validation
 [nFeatures,nPatternsTr]   = size(trX);
 nPatternsVal              = size(valX,2);
@@ -65,9 +70,7 @@ Hinv = pinv(H');
 W2  = Hinv * trY';
 
 % get ELM response on training
-temp     = (H' * W2)';  
-[~,temp] = max(temp,[],1);
-trYhat   = temp';
+trYhat   = (H' * W2)';
 
 % ...  and validation dataset
 Hval     = sigActFun(W1*valX + repmat(bias,[1,nPatternsVal]));
