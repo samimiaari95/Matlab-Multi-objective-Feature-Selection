@@ -91,12 +91,13 @@ options.nobjs = 4;
 options.objectiveFcn = @objFunWQEISS; 
 epsilon = 10^-3;
 epsilons = repmat(epsilon, [1,options.nobjs]);
+borg_param={'rngstate', 1 }; % setting seed to enable results' reproducibility 
 
 % launch
 borg(...
     options.nvars,options.nobjs,options.nconstrs,...
     options.objectiveFcn, options.NFE,...
-    options.lowerBounds, options.upperBounds, epsilons);
+    options.lowerBounds, options.upperBounds, epsilons, borg_param);
 
 
 % get solutions indexes for WQEISS
