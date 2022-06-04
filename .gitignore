@@ -1,6 +1,5 @@
 # Private scripts
 supporting_functions/
-deseasonalized_regression.m
 
 # Copy rights
 borg_moea/
@@ -20,6 +19,8 @@ borg_moea/
 !spec/*.mat
 *.pdf
 !spec/*.pdf
+*.asv
+!spec/*.asv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
