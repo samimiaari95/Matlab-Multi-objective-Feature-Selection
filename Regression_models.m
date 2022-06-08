@@ -4,7 +4,7 @@ clear
 clc
 %% Define input file name
 
-filename = 'blue_nile.xls';
+filename = 'subbasin.xls';
 
 %% specify include paths
 
@@ -30,9 +30,9 @@ addpath(results_path.path)  % results folder
 
 nFolds=32; % equal to the number of years
 nRuns = 200; % the higher the better for ANN
-weeks=1:1:1664; % change number of weeks from 884
-nELM=5000;
-nUnits = 100; % change from 28 and see the output
+weeks=1:1:1664; % number of weeks
+nELM=5000; % number of ELM function evaluations
+nUnits = 100; % The higher the better for ELM but increases running time
 
 
 %% Nile dataset
@@ -40,13 +40,35 @@ nUnits = 100; % change from 28 and see the output
 Nile = readtable(filename);
 
 %depending on the variables chosen from IVS
-p1_Nile  = Nile.week;
-p2_Nile  = Nile.Riverdischarge2w;
-p3_Nile  = Nile.SPI16w;
-%p4_Nile  = Nile.Evapotranspiration;
-%p5_Nile  = Nile.Soilmoisture;
-%p6_Nile  = Nile.SPI6w;
-%p7_Nile  = Nile.SPI16w;
+p1_Nile  = Nile.year;
+p2_Nile  = Nile.week;
+p3_Nile  = Nile.Prec;
+p4_Nile  = Nile.Prec2w;
+p5_Nile  = Nile.Prec4w;
+p6_Nile  = Nile.Tmin;
+p7_Nile  = Nile.Tmin2w;
+p8_Nile  = Nile.Tmax;
+p9_Nile  = Nile.Tmax2w;
+p10_Nile  = Nile.Tmean;
+p11_Nile  = Nile.Tmean2w;
+p12_Nile  = Nile.Tmean4w;
+p13_Nile  = Nile.Evapotranspiration;
+p14_Nile  = Nile.Evapotranspiration3w;
+p15_Nile  = Nile.Evapotranspiration6w;
+p16_Nile  = Nile.Evapotranspiration16w;
+p17_Nile  = Nile.Riverdischarge;
+p18_Nile  = Nile.Riverdischarge2w;
+p19_Nile  = Nile.Riverdischarge4w;
+p20_Nile  = Nile.Riverdischarge16w;
+p21_Nile  = Nile.Soilmoisture;
+p22_Nile  = Nile.Soilmoisture16w;
+p23_Nile  = Nile.Soilmoisture52w;
+p24_Nile  = Nile.SPI;
+p25_Nile  = Nile.SPI3w;
+p26_Nile  = Nile.SPI6w;
+p27_Nile  = Nile.SPI16w;
+p28_Nile  = Nile.SPI52w;
+
 Y_Nile   = Nile.NDVI;
 
 
@@ -54,7 +76,7 @@ T = 52;
 
 %% NDVI processing
 %Deseasonalizing NDVI Nile
-[ mi_Nile , m_Nile ] = moving_average( Y_Nile , 52 , 5 ) ; 
+[ mi_Nile , m_Nile ] = moving_average( Y_Nile , T , 5 ) ; 
 [ sigma2_Nile , s2_Nile ] = moving_average( ( Y_Nile - m_Nile ).^2 , T , 5 ) ;
 sigma_Nile           = sigma2_Nile .^ 0.5                        ;
 s_Nile               = s2_Nile .^ 0.5                            ;
@@ -76,14 +98,14 @@ xticklabels({'1984','1985','1986','1987','1988','1989','1990','1991','1992','199
 
  % periodicity 
 %tt = mod( t - 1 , T ) + 1   ; % indices tt = 1 , 2 , ... , 365 , 1 , 2 , ...
-tt = repmat( [1:52]' , 1664/T, 1 ) ; % indices tt = 1 , 2 , ... , 365 , 1 , 2 , ...
+tt = repmat( [1:T]' , 1664/T, 1 ) ; % indices tt = 1 , 2 , ... , 365 , 1 , 2 , ...
 
 figure ; plot( tt ,Y_Nile , '.' ) ; 
 titles = 'Yearly NDVI';
 title(titles);
 xlabel( 'time t (1 year)' ) ; ylabel( 'NDVI' )
 
-Q = reshape(Y_Nile,T,32); % 34 stands for the number of years
+Q = reshape(Y_Nile,T,32); % 32 stands for the number of years
 
 % cyclo-stationary mean
 Cm = mean(Q')' ;
@@ -103,7 +125,7 @@ xlabel( 'time t (1 year)' ) ; ylabel( 'NDVI' );
 
 
 figure();
-plot(1:1664,repmat(Cm,32),'-k') % 34 represents the number of years
+plot(1:1664,repmat(Cm,32),'-k') % 32 represents the number of years
 hold on
 plot(1:1664,Y_Nile,'-r')
 titles = 'Deseasonalized - Observed NDVI';
@@ -116,19 +138,41 @@ xticklabels({'1984','1985','1986','1987','1988','1989','1990','1991','1992','199
 
 %% Prepare the dataset
 % Deseasonalize variables
-x_p2_Nile = deseasonalize_var(p2_Nile, 'river discharge 2w');
-x_p3_Nile = deseasonalize_var(p3_Nile, 'SPI 16w');
-%x_p4_Nile = deseasonalize_var(p4_Nile, 'evapotranspiration');
-%x_p5_Nile = deseasonalize_var(p5_Nile, 'soil moisture');
-%x_p6_Nile = deseasonalize_var(p6_Nile, 'SPI 6w');
-%x_p7_Nile = deseasonalize_var(p7_Nile, 'SPI 16w');
 
-x_PHI_Nile = [p1_Nile, x_p2_Nile,x_p3_Nile] ;
+x_p3_Nile = deseasonalize_var(p3_Nile, 'precipitation');
+x_p4_Nile = deseasonalize_var(p4_Nile, 'precipitation 2w');
+x_p5_Nile = deseasonalize_var(p5_Nile, 'precipitation 4w');
+x_p6_Nile = deseasonalize_var(p6_Nile, 'Tmin');
+x_p7_Nile = deseasonalize_var(p7_Nile, 'Tmin 2w');
+x_p8_Nile = deseasonalize_var(p8_Nile, 'Tmax');
+x_p9_Nile = deseasonalize_var(p9_Nile, 'Tmax 2w');
+x_p10_Nile = deseasonalize_var(p10_Nile, 'Tmean');
+x_p11_Nile = deseasonalize_var(p11_Nile, 'Tmean 2w');
+x_p12_Nile = deseasonalize_var(p12_Nile, 'Tmean 4w');
+x_p13_Nile = deseasonalize_var(p13_Nile, 'evapotranspiration');
+x_p14_Nile = deseasonalize_var(p14_Nile, 'evapotranspiration 3w');
+x_p15_Nile = deseasonalize_var(p15_Nile, 'evapotranspiration 6w');
+x_p16_Nile = deseasonalize_var(p16_Nile, 'evapotranspiration 16w');
+x_p17_Nile = deseasonalize_var(p17_Nile, 'river discharge');
+x_p18_Nile = deseasonalize_var(p18_Nile, 'river discharge 2w');
+x_p19_Nile = deseasonalize_var(p19_Nile, 'river discharge 4w');
+x_p20_Nile = deseasonalize_var(p20_Nile, 'river discharge 16w');
+x_p21_Nile = deseasonalize_var(p21_Nile, 'soil moisture');
+x_p22_Nile = deseasonalize_var(p22_Nile, 'soil moisture 16w');
+x_p23_Nile = deseasonalize_var(p23_Nile, 'soil moisture 52w');
+x_p24_Nile = deseasonalize_var(p24_Nile, 'SPI');
+x_p25_Nile = deseasonalize_var(p25_Nile, 'SPI 3w');
+x_p26_Nile = deseasonalize_var(p26_Nile, 'SPI 6w');
+x_p27_Nile = deseasonalize_var(p27_Nile, 'SPI 16w');
+x_p28_Nile = deseasonalize_var(p28_Nile, 'SPI 52w');
 
-Y            = x_Nile;
 
-% number of candidates
-featIxes=1:1:3;
+x_PHI_Nile = [p2_Nile,x_p27_Nile] ; % predictors to be considered
+
+Y          = x_Nile ;
+
+% number of predictors
+featIxes=1:1:2;
 
 
 %% Linear model
@@ -165,8 +209,11 @@ for i = 1 : nFolds
         Yhat_Nile_lin(valIxes) =  x__Nile .* s_Nile(valIxes) + m_Nile(valIxes)           ;
 end
 
-Erre2_Nile_LIN = rsq(Nile.NDVI,Yhat_Nile_lin);
+Erre2_Nile_LIN = rsq(Y_Nile,Yhat_Nile_lin);
+RMSE_LIN = sqrt(mean((Y_Nile - Yhat_Nile_lin).^2));
 fprintf('R2 Linear = %s\n', Erre2_Nile_LIN);
+fprintf('RMSE Linear = %s\n', RMSE_LIN);
+
 figure; plot(Y_Nile,Yhat_Nile_lin, '.');
 title('Scatterplot Observed-Predicted NDVI LINEAR')
 xlabel('Observed NDVI');
@@ -227,11 +274,13 @@ for j = 1:nRuns
     end
 end
 
-[Erre2_Nile_ANN,pos] = max(R2_i_Nile);
-fprintf('R2 ANN = %s\n', Erre2_Nile_ANN);
-
 predicted_NDVI_ANN_Nile = Yhat_Nile_ANN(:,pos);
- 
+
+[Erre2_Nile_ANN,pos] = max(R2_i_Nile);
+RMSE_ANN = sqrt(mean((Y_Nile - predicted_NDVI_ANN_Nile).^2));
+fprintf('R2 ANN = %s\n', Erre2_Nile_ANN);
+fprintf('RMSE ANN = %s\n', RMSE_ANN);
+
 figure; plot(Y_Nile,predicted_NDVI_ANN_Nile, '.'); 
 title('Scatterplot Observed-Predicted NDVI ANN')
 xlabel('Observed NDVI');
@@ -312,6 +361,11 @@ Corrcoef_Nile = corrcoef(predicetd_NDVI_Nile_ELM,Y_Nile);
 
 % ELM results
 
+R2_ELM = rsq(Y_Nile,predicetd_NDVI_Nile_ELM);
+RMSE_ELM = sqrt(mean((Y_Nile - predicetd_NDVI_Nile_ELM).^2));
+fprintf('R2 ELM = %s\n', R2_ELM);
+fprintf('RMSE ELM = %s\n', RMSE_ELM);
+
 figure; plot(Y_Nile,predicetd_NDVI_Nile_ELM, '.'); 
 title('Scatterplot Observed-Predicted NDVI ELM')
 xlabel('Observed NDVI');
@@ -345,10 +399,11 @@ xticks(0:52:size(weeks,2))
 xticklabels({'1984','1985','1986','1987','1988','1989','1990','1991','1992','1993','1994','1995','1996','1997','1998','1999','2000','2001','2002','2003','2005','2006','2007','2008','2009','2010','2011','2012','2013','2014','2015','2016'})
 
 %% Create the results folder
-list = size(dir('results')) ;
 [pathstr, subbasin, ext] = fileparts(filename);
-FolderName = append(results_path.path,'\',subbasin,'\','v',num2str( list(1) ));
-mkdir(FolderName)
+FolderName = append(results_path.path,'\',subbasin);
+vlist = size(dir(FolderName)) ;
+newfolder = append(FolderName,'\','v',num2str( vlist(1) ));
+mkdir(newfolder)
 
 %% Save figures in the results folder
 FigList = findobj(allchild(0), 'flat', 'Type', 'figure');
@@ -357,6 +412,6 @@ for iFig = 1:length(FigList)
   ax = FigHandle.CurrentAxes; 
   FigName   = get(ax,'title');
   FigName = get(FigName, 'string');
-  savefig(FigHandle, fullfile(FolderName, strjoin({FigName, '.fig'},'')));
+  savefig(FigHandle, fullfile(newfolder, strjoin({FigName, '.fig'},'')));
 end
 

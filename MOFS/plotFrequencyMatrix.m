@@ -75,7 +75,7 @@ if (nargin >= 3) && ~isempty(featNames)
     % Place the new labels 
     for i = 1:nFeat
         t(i) = text(i,y,featNames{i}); 
-        set(t(i),'Rotation',45,'HorizontalAlignment','right','FontSize',10)
+        set(t(i),'Rotation',90,'HorizontalAlignment','right','FontSize',10)
     end    
 else
     set(gca,'XTick',1:nFeat,'XTickLabel',1:nFeat);
