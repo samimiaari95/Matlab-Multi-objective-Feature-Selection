@@ -274,9 +274,9 @@ for j = 1:nRuns
     end
 end
 
+[Erre2_Nile_ANN,pos] = max(R2_i_Nile);
 predicted_NDVI_ANN_Nile = Yhat_Nile_ANN(:,pos);
 
-[Erre2_Nile_ANN,pos] = max(R2_i_Nile);
 RMSE_ANN = sqrt(mean((Y_Nile - predicted_NDVI_ANN_Nile).^2));
 fprintf('R2 ANN = %s\n', Erre2_Nile_ANN);
 fprintf('RMSE ANN = %s\n', RMSE_ANN);
@@ -414,4 +414,3 @@ for iFig = 1:length(FigList)
   FigName = get(FigName, 'string');
   savefig(FigHandle, fullfile(newfolder, strjoin({FigName, '.fig'},'')));
 end
-
